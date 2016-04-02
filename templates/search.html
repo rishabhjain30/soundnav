@@ -4,10 +4,14 @@
 	<title>SoundNav</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
-    <link rel="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" media="screen">
+     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
+    
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">	
     <style type="text/css">
-
+    	html, body { height: 100%; }
 		h1,h2,h3,p,li,label,span{
 			font-family:  "Halvetica";
 
@@ -19,43 +23,47 @@
 		  z-index: 1;
 
 		  display: block;
-		  background-image: url('http://digital-photography-school.com/wp-content/uploads/2015/07/milky-way-photography-tutorial-death-valley-gavin-hardcastle.jpg');
+		  background-image: url('http://www.freecreatives.com/wp-content/uploads/2015/05/HD-Vintage-Photography-Wallpaper.jpg');
+		  background-size: 100% 100%;
 		  width: 100%;
 		  height: 100%;
 		  z-index: -9999;
-		  background-size: cover;
+		  
 		  background-repeat: no-repeat;
-		  -webkit-filter: blur(2.5px);
-		  -moz-filter: blur(2.5px);
-		  -o-filter: blur(2.5px);
-		  -ms-filter: blur(2.5px);
-		  filter: blur(2.5px);
+		  -webkit-filter: blur(2px);
+		  -moz-filter: blur(2px);
+		  -o-filter: blur(2px);
+		  -ms-filter: blur(2px);
+		  filter: blur(2px);
 		}
 		.container-fluid{
 			padding: auto;
 
 			
 		}
-		.search-text{
+		.speech-text{
 			margin: 4% 12% 12%;
 			width: 70%;
 			position: fixed;
 			height: 100px;
+			z-index: 9999;
 		}
-		.search-text h3{
-			color: #fff;
+		#introspeech{
+			color: #000;
 			font-family: "Halvetica";
 			font-size: 35px;
+			text-align: center;
 			
 		}
 		.search-box{
 			height: 40%;
-			width: 70%;
-			box-shadow: 0px 3px 3px  #e9edf0;
+			width: 60%;
+			box-shadow: 0px 3px 3px  #000;
 			float: left;
-			margin: 5% 11% ;
+			margin: 15% 15% ;
 			position: fixed;
 			padding: 4%;
+			z-index: 9999;
 
 
 		}
@@ -63,8 +71,9 @@
 			
 			font-weight: bold;
 			float: left;
-			margin-left: 34%;
+			margin-left: 32%;
 			font-size: 58px;
+			color: #000;
 		}
 		.search-box h1:nth-child(2){
 			float: left;
@@ -86,6 +95,11 @@
 			background-color:#e9edf0; 
 			margin:1% 28%;
 		}
+		#after-search{
+			background-color: #00c87c;
+			padding: 2%;
+		}
+		
 
 	</style>
 	<script src="http://code.jquery.com/jquery.js"></script>
@@ -93,8 +107,8 @@
 </head>
 <body>
 
-<div id="app">
-	<div class="container-fluid">
+<div id="app" ng-app>
+	<div class="container-fluid" id="home-search">
 		<div class='background-image'></div>
 		<div class='speech-text'>
 			<h3 id="introspeech"></h3>
@@ -105,6 +119,27 @@
 			<input id="transcription" type="text" ref="searchInput" />						
 		</div>
 	</div>	
+	<div class="container" id="result" style="display:none">
+		<div id="after-search" class="col-xs-12">
+			<div class="col-xs-2">
+				
+				
+			</div>
+			<div class="col-xs-8">
+				<input id="next-search" type="text" class="form-control">
+
+			</div>
+			<div class="col-xs-2">
+				<button type="submit" class="form-control btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+			</div>
+			
+		</div>
+		
+		<div class="col-xs-12">
+			<h1></h1>
+		</div>
+	
+	</div>
 </div>
 
 
@@ -125,7 +160,7 @@ function recognizeSpeech(callback){
     var transcription = document.getElementById('transcription');
     var introspeech= document.getElementById('introspeech');
     var log = document.getElementById('log');
-    recognizer.continuous = true; // Recogniser doesn't stop listening even if the user pauses
+    recognizer.continuous = false; // Recogniser doesn't stop listening even if the user pauses
  		//function to start the recognizer	
 		try {
 		    recognizer.start();
@@ -133,7 +168,7 @@ function recognizeSpeech(callback){
 		    transcription.value =  transcription.value;
 		} 
 		catch(ex) {
-		    transcription.value = 'Recognition error: ' + ex.message + '<br />' + transcription.value;
+		   console.log( 'Recognition error: ' ,ex.message,transcription.value);
 		}
 	}
 
@@ -146,7 +181,38 @@ function recognizeSpeech(callback){
         } else {
           transcription.value += event.results[i][0].transcript;
         }
-      	callback();
+      	
+      }
+
+      //check if the user has searched something ... if yes then redirect to search result page
+      if(transcription.value!=null){
+      	var main = document.getElementById("home-search");
+      	var next =document.getElementById("result");
+      	var searchText = document.getElementById("next-search");
+
+      	var jqxhr = $.get( "searchterm?query="+transcription.value, function() {
+			  console.log( "success" );
+			})
+			  .done(function() {
+			    console.log( "done" );
+			  })
+			  .fail(function() {
+			    console.log("failed");
+			  })
+			  .always(function() {
+			    console.log( "finised" );
+			});
+		console.log(jqxhr.responseText);
+      	setTimeout(function(){
+      		main.style.display='none';
+      		next.style.display='block';
+      		searchText.value=transcription.value;
+      		next.children[1].children[0].innerHTML=jqxhr.responseText;
+      		textToSpeech(next.children[1].children[0].innerHTML);
+
+
+      	},1000);
+      	
       }
     // Listen for errors
     recognizer.onerror = function(event) {
@@ -157,7 +223,7 @@ function recognizeSpeech(callback){
 
 function introSpeech(callback){
 	   	var intro = new SpeechSynthesisUtterance();
-		intro.text = 'Welcome to the amazing world of Internet. We have set up everything for you. You may enjoy your journey with just your voice';
+		intro.text = 'Ready! Lets search our way through voice' ;
 		speechSynthesis.cancel();
 		var  t;
 		intro.onstart = function (event) {
@@ -171,31 +237,112 @@ function introSpeech(callback){
 		};
 		intro.lang = 'en-US';
 		intro.rate = 0.85;
-		window.addEventListener("load",function(){
-			speechSynthesis.speak(intro);
+		speechSynthesis.speak(intro);
 			var c = 0;
 			var interval = setInterval(function() { 
                       		introspeech.innerHTML += intro.text[c]; 
                       		c++; 
 	                      if(c >= intro.text.length) clearInterval(interval);
-    	                  }, 76); 	
-		},callback(processInput));
+    	                  }, 76); 
+		setTimeout(function(){
+		callback();	
+	},80*intro.text.length);
+		
+		
 }
+window.addEventListener("load",function(){
+			introSpeech(recognizeSpeech)
 
-function prepareFrame() {
+});
+// function to speak the text
+function textToSpeech(text,delay=0,stop=false){
+
+	
+		var intro = new SpeechSynthesisUtterance();
+		intro.text = text ;
+		speechSynthesis.cancel();
+		var  t;
+
+		intro.onstart = function (event) {
+		    t = event.timeStamp;
+		    console.log(t);
+		};
+
+		intro.onend = function (event) {
+		    t = event.timeStamp-t;
+		    console.log(event.timeStamp);
+		    console.log((t/1000) +' seconds');
+		};
+
+		intro.lang = 'en-US';
+		intro.rate = 0.85;
+
+		setTimeout(function(){
+			speechSynthesis.speak(intro);
+		});
+
+		if(stop===true){
+		
+				return;
+			}
+		textToSpeech('speak the next command',2000,true);
+		
+
+}
+//
+/*function speechToText(div){
+	var recognizing;
+    var recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    reset();
+    recognition.onend = reset;
+    var answer='';
+    recognition.onresult = function (event) {
+      for (var i = resultIndex; i < event.results.length; ++i) {
+        if (event.results.final) {
+          answer += event.results[i][0].transcript;
+        }
+      }
+    }
+    console.log(answer);
+
+    function reset() {
+      recognizing = false;
+      //button.innerHTML = "Click to Speak";
+    }
+
+    function toggleStartStop() {
+      if (recognizing) {
+        recognition.stop();
+        reset();
+      } else {
+        recognition.start();
+        recognizing = true;
+       // button.innerHTML = "Click to Stop";
+      }
+    }
+}*/
+/*function prepareFrame() {
 	frmDiv = document.createElement("div");
 	frmDiv.innerHTML(' <iframe src="process.html" width="497" height="298" seamless=""></iframe>')
 	document.body.appendChild(ifrm);
-}
+}*/
 
-function processInput() {
+/*function processInput() {
 	console.log('iframe');
-	prepareFrame();	
+	//prepareFrame();	
 }
+*/
 
 // introSpeech(recognizeSpeech);
-recognizeSpeech(processInput);
+
 
     </script>
+
+<!--Additional scripts -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.8/angular-animate.js"></script>
+
 </body>
 </html>
