@@ -1,66 +1,196 @@
-<!DOCTYPE html>
+<!DOCTYPE>
 <html>
 <head>
-<title>Search Box Example 1</title>
-<meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
-<!-- CSS styles for standard search box -->
-<style type="text/css">
-	#tfheader{
-		background-color:#c3dfef;
-	}
-	#tfnewsearch{
-		float:right;
-		padding:20px;
-	}
-	.tftextinput{
-		margin: 0;
-		padding: 5px 15px;
-		font-family: Arial, Helvetica, sans-serif;
-		font-size:14px;
-		border:1px solid #0076a3; border-right:0px;
-		border-top-left-radius: 5px 5px;
-		border-bottom-left-radius: 5px 5px;
-	}
-	.tfbutton {
-		margin: 0;
-		padding: 5px 15px;
-		font-family: Arial, Helvetica, sans-serif;
-		font-size:14px;
-		outline: none;
-		cursor: pointer;
-		text-align: center;
-		text-decoration: none;
-		color: #ffffff;
-		border: solid 1px #0076a3; border-right:0px;
-		background: #0095cd;
-		background: -webkit-gradient(linear, left top, left bottom, from(#00adee), to(#0078a5));
-		background: -moz-linear-gradient(top,  #00adee,  #0078a5);
-		border-top-right-radius: 5px 5px;
-		border-bottom-right-radius: 5px 5px;
-	}
-	.tfbutton:hover {
-		text-decoration: none;
-		background: #007ead;
-		background: -webkit-gradient(linear, left top, left bottom, from(#0095cc), to(#00678e));
-		background: -moz-linear-gradient(top,  #0095cc,  #00678e);
-	}
-	/* Fixes submit button height problem in Firefox */
-	.tfbutton::-moz-focus-inner {
-	  border: 0;
-	}
-	.tfclear{
-		clear:both;
-	}
-</style>
+	<title>SoundNav</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link rel="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false" ></script>
+
+	
+	
+	<style type="text/css">
+
+		
+h1,h2,h3,p,li,label,span{
+	font-family:  "Halvetica";
+
+}
+.container-fluid{
+	padding: auto;
+	
+}
+.container-fluid h3{
+	margin: 1% 17% 17%;
+	font-family: "Halvetica";
+	font-size: 20px;
+	
+}
+.search-box{
+	height: 40%;
+	width: 70%;
+	box-shadow: 3px 3px 3px 3px #e9edf0;
+	float: left;
+	margin: 5% 11% ;
+	position: fixed;
+	padding: 4%;
+
+}
+.search-box h1:nth-child(1){
+	
+	font-weight: bold;
+	float: left;
+	margin-left: 34%;
+	font-size: 58px;
+}
+.search-box h1:nth-child(2){
+	float: left;
+	font-size: 60px;
+	text-align: center;
+	color: #00c87c;
+}
+.search-box input{
+	height: 40px;
+	width: 80%;
+	margin:3% 10%;
+	float: left;
+}
+.search-box button{
+	float: left;
+	width: 40%;
+	height: 40px;
+	font-size: 30px;
+	background-color:#e9edf0; 
+	margin:1% 28%;
+}
+
+	</style>
+	
 </head>
 <body>
-	<!-- HTML for SEARCH BAR -->
-	<div id="tfheader">
-		<form id="tfnewsearch" method="get" action="http://www.google.com">
-		        <input type="text" class="tftextinput" name="q" size="21" maxlength="120"><input type="submit" value="search" class="tfbutton">
-		</form>
-	<div class="tfclear"></div>
+
+<div id="app">
+	<div class="container-fluid">
+				<h3 id="introSpeach"></h3>
+				<div class="search-box">
+
+					<h1> Sound</h1><h1>Nav</h1>
+					<br/>
+					<input id="transcription" type="text" ref="searchInput" />
+					
+					
+					
+					
+					
+				</div>
 	</div>
+	
+</div>
+ 
+
+<script type="text/javascript">
+      // Test browser support
+
+     	 
+			
+
+
+	
+      window.SpeechRecognition = window.SpeechRecognition       ||
+                                 window.webkitSpeechRecognition ||
+                                 null;
+
+       
+     
+      if (window.SpeechRecognition === null) {
+        
+        console.log("not supported");
+      } else {
+        var recognizer = new window.SpeechRecognition();
+        var transcription = document.getElementById('transcription');
+        var introSpeach = document.getElementById('introSpeach');
+        var log = document.getElementById('log');
+        
+        recognizer.continuous = true; // Recogniser doesn't stop listening even if the user pauses
+        //**********
+        	var intro = new SpeechSynthesisUtterance();
+			intro.text = 'Welcome to the amazing world of Internet. We have set up everything for you. You may enjoy your journey with just your voice';
+
+			speechSynthesis.cancel();
+			var  t;
+			intro.onstart = function (event) {
+			    t = event.timeStamp;
+			    console.log(t);
+			};
+
+			intro.onend = function (event) {
+			    t = event.timeStamp-t;
+			    console.log(event.timeStamp);
+			    console.log((t/1000) +' seconds');
+			};
+			intro.lang = 'en-US';
+			intro.rate = 0.85;
+			//function to start the recognizer
+			var speakSearch=function(){
+				       
+							setTimeout(function(){
+								try {
+					            recognizer.start();
+					            
+					            transcription.value =  transcription.value;
+					          } catch(ex) {
+					            transcription.value = 'Recognition error: ' + ex.message + '<br />' + transcription.value;
+					          }
+							},80*intro.text.length);
+							
+							
+						};
+			// for initial speech			
+			window.addEventListener("load",function(){
+				
+				
+				speechSynthesis.speak(intro);
+				var c = 0;
+    			var interval = setInterval(function() { 
+                          introSpeach.innerHTML += intro.text[c]; 
+                          c++; 
+
+                          if(c >= intro.text.length) clearInterval(interval);
+                          }, 76); 
+				
+			},speakSearch());
+
+        //*********
+
+        // Start recognising
+        recognizer.onresult = function(event) {
+          transcription.value = '';// to stroe the recognized voice
+
+
+          for (var i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              transcription.value = event.results[i][0].transcript ;
+            } else {
+              transcription.value += event.results[i][0].transcript;
+            }
+          }
+        };
+
+        // Listen for errors
+        recognizer.onerror = function(event) {
+          transcription.value = 'Sorry We couldnt hear you ' + event.message + transcription.value;
+        };
+
+      
+         
+
+      }
+    </script>
+
+<script src="http://code.jquery.com/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
 </body>
 </html>
-

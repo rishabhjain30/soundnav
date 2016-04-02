@@ -1,0 +1,62 @@
+/*.sidebar{
+	height: 100%;
+	width: 25%;
+	float: left;
+}
+.content{
+	height: 100%;
+	width: 70%;
+	float: left;
+}
+.LocateOffice{
+	background-color: #000;
+	height: 100%;
+}*/
+h1,h2,h3,p,li,label,span{
+	font-family:  "Halvetica";
+
+}
+.container-fluid{
+	padding: auto;
+	
+}
+.container-fluid h3{
+	margin: 2% 10% 5%;
+}
+.search-box{
+	height: 40%;
+	width: 70%;
+	box-shadow: 3px 3px 3px 3px #e9edf0;
+	float: left;
+	margin: 15% 11% ;
+	position: relative;
+	padding: 4%;
+
+}
+.search-box h1:nth-child(1){
+	
+	font-weight: bold;
+	float: left;
+	margin-left: 34%;
+	font-size: 58px;
+}
+.search-box h1:nth-child(2){
+	float: left;
+	font-size: 60px;
+	text-align: center;
+	color: #00c87c;
+}
+.search-box input{
+	height: 40px;
+	width: 80%;
+	margin:3% 10%;
+	float: left;
+}
+.search-box button{
+	float: left;
+	width: 40%;
+	height: 40px;
+	font-size: 30px;
+	background-color:#e9edf0; 
+	margin:1% 28%;
+}
