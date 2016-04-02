@@ -193,21 +193,18 @@ function recognizeSpeech(callback){
       	var jqxhr = $.get( "searchterm?query="+transcription.value, function() {
 			  console.log( "success" );
 			})
-			  .done(function() {
-			    console.log( "done" );
-			  })
-			  .fail(function() {
-			    console.log("failed");
-			  })
-			  .always(function() {
-			    console.log( "finised" );
-			});
-		console.log(jqxhr.responseText);
+			.done(function(){
+				var result = jqxhr.responseText
+				next.children[1].children[0].innerHTML=result;
+			}) ;
+			  
+		console.log(jqxhr);
       	setTimeout(function(){
       		main.style.display='none';
       		next.style.display='block';
       		searchText.value=transcription.value;
-      		next.children[1].children[0].innerHTML=jqxhr.responseText;
+      		
+      		
       		textToSpeech(next.children[1].children[0].innerHTML);
 
 
