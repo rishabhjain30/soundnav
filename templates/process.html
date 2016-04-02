@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <title>ChromeVox API Demonstration</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style>
+            h1 {font-size:1.2em;}
+        </style>
+        <script>
+            var currentHeadingLocation = 0; // number of heading which has CV focus
+            var currentHeading; // heading object which ahs current CV focus
+            var headingCount; // total number of headings
+            var penguins=false; // is CV focused on penguins
+
+            window.addEventListener('load', function() {
+                headingCount = document.getElementsByTagName('h1').length;
+                console.log(headingCount); // get the total number of headings
+            }, false)
+            
+            // speak a string
+            function speak(text) {
+                cvox.Api.speak(text);
+            }
+
+            // listen for moving to next or previous headings in CV
+            function cvoxEventsHandler(evt){
+                var command = evt.detail.command;
+                console.log(command);
+                switch(command){
+                    case 'nextHeading':
+                        if(currentHeadingLocation==-1){
+                            // if invalid heading number, set it to the first heading
+                            currentHeadingLocation=0;
+                        } else if(currentHeadingLocation>=headingCount-1) {
+                            // if at the last heading, loop to the first
+                            currentHeadingLocation = 0;
+                        } else if(currentHeadingLocation==2 && !penguins) {
+                            // if at the heading just before the penguins, indicate next heading should go to the penguins
+                            penguins=true;
+                        } else {
+                            // go to the next heading
+                            penguins=false;
+                            currentHeadingLocation=currentHeadingLocation+1;
+                        } 
+                        
+                        if(penguins){
+                            // if penguins should receive focus, set focus to penguins
+                            currentHeading = document.getElementById('penguins');
+                        }else{
+                            // set focus to next heading
+                            currentHeading = document.getElementsByTagName('h1')[currentHeadingLocation];
+                        }
+
+                        // move the CV cursor to the next heading
+                        cvox.Api.syncToNode(currentHeading, false);
+                        
+                        if(penguins){
+                            // if penguins have focus, read the penguin text and alt attribute
+                            // I used commas instead of periods, because sometimes CV truncates at the period - don't know why
+                            speak('You are not ready for the next heading yet First you must spend time frolicking with the penguins After that you may go to the next heading. Image' + currentHeading.getAttribute('alt'));
+                        } else{
+                            // read the custom indicator for heading text and the actual text of the heading 
+                            speak('You have jumped to the next heading which is called' + currentHeading.innerText);
+                        }
+
+                        break;
+                    
+                    case 'previousHeading':
+                        if(currentHeadingLocation==-1){
+                            // if invalid heading number, set it to the first heading
+                            currentHeadingLocation=headingCount-1;
+                        } else if(currentHeadingLocation==0) {
+                            // if at the first heading, loop to the last
+                            currentHeadingLocation = headingCount -1;
+                        } else if(currentHeadingLocation==3 && !penguins) {
+                            // if at the heading just after the penguins, indicate next heading should go to the penguins
+                            penguins=true;
+                        } else {
+                            // go to the next heading
+                            penguins=false;
+                            currentHeadingLocation=currentHeadingLocation-1;
+                        } 
+
+                        if(penguins){
+                            // if penguins should receive focus, set focus to penguins
+                            currentHeading = document.getElementById('penguins');
+                        }else{
+                            // set focus to next heading
+                            currentHeading = document.getElementsByTagName('h1')[currentHeadingLocation];
+                        }
+                        
+                        // move the CV cursor to the next heading
+                        cvox.Api.syncToNode(currentHeading, false);
+                        
+                        if(penguins){
+                            // if penguins have focus, read the penguin text and alt attribute
+                            // I used commas instead of periods, because sometimes CV truncates at the period - don't know why
+                            speak('You are not ready for the previous heading yet First you must spend time frolicking with the penguins After that you may go to the previous heading. Image' + currentHeading.getAttribute('alt'));
+                        } else{
+                            // read the custom indicator for heading text and the actual text of the heading 
+                            speak('You have jumped to the previous heading which is called' + currentHeading.innerText);
+                        }
+                        break;
+                }
+            }
+            
+            // add the listener for ChromeVox events
+                document.addEventListener("cvoxUserEvent",cvoxEventsHandler, true);
+            
+        </script>
+
+    </head>
+    <body>
+        <h1>ChromeVox API Demonstration</h1>
+        <p>This page demonstrates some of the customizations you can make to ChromeVox using the ChromeVox API. This page is not intended to be a guide for how to implement these features and it is not meant to be a good model of accessibility. This is simply for demonstration purposes.</p>
+        <p>I am not an expert on the ChromeVox API. This is what I cobbled together after viewing a presentation at Google I/O.</p>
+        <h1>What does this site do?</h1>
+        <p>This site demonstrates what is possible with the ChromeVox API. The ChromeVox API lets you do things that no other screen reader allows you to do, like sending specific commands back to the screen reader. This holds both great promise and great risk.</p>
+        <h1>What will you experience on this site?</h1>
+        <p>If you read this site with any screen reader other than ChromeVox, you will hear a set of headings with text after each heading. Additionally, you will hear one image on the page.</p>
+        <p>If you read this page with ChromeVox, when you navigate by next and previous heading, for each heading you will hear some custom text I wrote to let you know you went to the next heading. Also, I hijack the ChromeVox cursor and place focus on the image of the penguins when you try to move between the third and fourth headings.</p>
+        <p>If you have problems with this page, be sure to refresh the page after ChromeVox is running.</p>
+        <img id="penguins" src="penguins.jpg" alt="penguins frolicking" tabindex="-1"/>
+        <h1>Why does this matter?</h1>
+        <p>Screen readers typically read the page and get information from it. They are not usually forced to do something or told to do something by the underlying page. This is a shift in how screen readers work with the underlying Web pages. Read more about why this is significant in my blog post.</p>
+    </body>
+</html>
+    
