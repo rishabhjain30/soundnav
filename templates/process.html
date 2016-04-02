@@ -7,105 +7,152 @@
             h1 {font-size:1.2em;}
         </style>
         <script>
-            var currentHeadingLocation = 0; // number of heading which has CV focus
-            var currentHeading; // heading object which ahs current CV focus
-            var headingCount; // total number of headings
-            var penguins=false; // is CV focused on penguins
 
-            window.addEventListener('load', function() {
-                headingCount = document.getElementsByTagName('h1').length;
-                console.log(headingCount); // get the total number of headings
-            }, false)
-            
-            // speak a string
-            function speak(text) {
-                cvox.Api.speak(text);
-            }
+            function recognizeSpeech(){
+                window.SpeechRecognition = window.SpeechRecognition       ||
+                             window.webkitSpeechRecognition ||
+                             null;     
 
-            // listen for moving to next or previous headings in CV
-            function cvoxEventsHandler(evt){
-                var command = evt.detail.command;
-                console.log(command);
-                switch(command){
-                    case 'nextHeading':
-                        if(currentHeadingLocation==-1){
-                            // if invalid heading number, set it to the first heading
-                            currentHeadingLocation=0;
-                        } else if(currentHeadingLocation>=headingCount-1) {
-                            // if at the last heading, loop to the first
-                            currentHeadingLocation = 0;
-                        } else if(currentHeadingLocation==2 && !penguins) {
-                            // if at the heading just before the penguins, indicate next heading should go to the penguins
-                            penguins=true;
-                        } else {
-                            // go to the next heading
-                            penguins=false;
-                            currentHeadingLocation=currentHeadingLocation+1;
-                        } 
-                        
-                        if(penguins){
-                            // if penguins should receive focus, set focus to penguins
-                            currentHeading = document.getElementById('penguins');
-                        }else{
-                            // set focus to next heading
-                            currentHeading = document.getElementsByTagName('h1')[currentHeadingLocation];
-                        }
+                var recognizer = new window.SpeechRecognition();
+                var transcription = document.getElementById('transcription');
+                var log = document.getElementById('log');
+                recognizer.continuous = true; // Recogniser doesn't stop listening even if the user pauses
+                    //function to start the recognizer  
+                    try {
+                        recognizer.start();
+                        transcription.value =  transcription.value;
+                    } 
+                    catch(ex) {
+                        return;
+                    }
+                recognizer.onresult = function(event) {
+                  transcription.value = '';// to stroe the recognized voice
 
-                        // move the CV cursor to the next heading
-                        cvox.Api.syncToNode(currentHeading, false);
-                        
-                        if(penguins){
-                            // if penguins have focus, read the penguin text and alt attribute
-                            // I used commas instead of periods, because sometimes CV truncates at the period - don't know why
-                            speak('You are not ready for the next heading yet First you must spend time frolicking with the penguins After that you may go to the next heading. Image' + currentHeading.getAttribute('alt'));
-                        } else{
-                            // read the custom indicator for heading text and the actual text of the heading 
-                            speak('You have jumped to the next heading which is called' + currentHeading.innerText);
-                        }
-
-                        break;
-                    
-                    case 'previousHeading':
-                        if(currentHeadingLocation==-1){
-                            // if invalid heading number, set it to the first heading
-                            currentHeadingLocation=headingCount-1;
-                        } else if(currentHeadingLocation==0) {
-                            // if at the first heading, loop to the last
-                            currentHeadingLocation = headingCount -1;
-                        } else if(currentHeadingLocation==3 && !penguins) {
-                            // if at the heading just after the penguins, indicate next heading should go to the penguins
-                            penguins=true;
-                        } else {
-                            // go to the next heading
-                            penguins=false;
-                            currentHeadingLocation=currentHeadingLocation-1;
-                        } 
-
-                        if(penguins){
-                            // if penguins should receive focus, set focus to penguins
-                            currentHeading = document.getElementById('penguins');
-                        }else{
-                            // set focus to next heading
-                            currentHeading = document.getElementsByTagName('h1')[currentHeadingLocation];
-                        }
-                        
-                        // move the CV cursor to the next heading
-                        cvox.Api.syncToNode(currentHeading, false);
-                        
-                        if(penguins){
-                            // if penguins have focus, read the penguin text and alt attribute
-                            // I used commas instead of periods, because sometimes CV truncates at the period - don't know why
-                            speak('You are not ready for the previous heading yet First you must spend time frolicking with the penguins After that you may go to the previous heading. Image' + currentHeading.getAttribute('alt'));
-                        } else{
-                            // read the custom indicator for heading text and the actual text of the heading 
-                            speak('You have jumped to the previous heading which is called' + currentHeading.innerText);
-                        }
-                        break;
+                  for (var i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) {
+                      transcription.value = event.results[i][0].transcript ;
+                    } else {
+                      transcription.value += event.results[i][0].transcript;
+                    }
+                    callback();
+                  }
+                // Listen for errors
+                recognizer.onerror = function(event) {
+                  return;
+                  // transcription.value = 'Sorry We couldnt hear you ' + event.message + transcription.value;
+                  };          
                 }
+                return transcription.value;
+              }
+
+
+            function doSomething(){
+                var command = recognizeSpeech();
+                console.log(command);
             }
+
+            doSomething();
+            // setInterval(doSomething, 5000);
+             
+            // var currentHeadingLocation = 0; // number of heading which has CV focus
+            // var currentHeading; // heading object which ahs current CV focus
+            // var headingCount; // total number of headings
+            // var penguins=false; // is CV focused on penguins
+
+            // window.addEventListener('load', function() {
+            //     headingCount = document.getElementsByTagName('h1').length;
+            //     console.log(headingCount); // get the total number of headings
+            // }, false)
             
-            // add the listener for ChromeVox events
-                document.addEventListener("cvoxUserEvent",cvoxEventsHandler, true);
+            // // speak a string
+            // function speak(text) {
+            //     cvox.Api.speak(text);
+            // }
+
+            // // listen for moving to next or previous headings in CV
+            // function cvoxEventsHandler(evt){
+            //     var command = evt.detail.command;
+            //     console.log(command);
+            //     switch(command){
+            //         case 'nextHeading':
+            //             if(currentHeadingLocation==-1){
+            //                 // if invalid heading number, set it to the first heading
+            //                 currentHeadingLocation=0;
+            //             } else if(currentHeadingLocation>=headingCount-1) {
+            //                 // if at the last heading, loop to the first
+            //                 currentHeadingLocation = 0;
+            //             } else if(currentHeadingLocation==2 && !penguins) {
+            //                 // if at the heading just before the penguins, indicate next heading should go to the penguins
+            //                 penguins=true;
+            //             } else {
+            //                 // go to the next heading
+            //                 penguins=false;
+            //                 currentHeadingLocation=currentHeadingLocation+1;
+            //             } 
+                        
+            //             if(penguins){
+            //                 // if penguins should receive focus, set focus to penguins
+            //                 currentHeading = document.getElementById('penguins');
+            //             }else{
+            //                 // set focus to next heading
+            //                 currentHeading = document.getElementsByTagName('h1')[currentHeadingLocation];
+            //             }
+
+            //             // move the CV cursor to the next heading
+            //             cvox.Api.syncToNode(currentHeading, false);
+                        
+            //             if(penguins){
+            //                 // if penguins have focus, read the penguin text and alt attribute
+            //                 // I used commas instead of periods, because sometimes CV truncates at the period - don't know why
+            //                 speak('You are not ready for the next heading yet First you must spend time frolicking with the penguins After that you may go to the next heading. Image' + currentHeading.getAttribute('alt'));
+            //             } else{
+            //                 // read the custom indicator for heading text and the actual text of the heading 
+            //                 speak('You have jumped to the next heading which is called' + currentHeading.innerText);
+            //             }
+
+            //             break;
+                    
+            //         case 'previousHeading':
+            //             if(currentHeadingLocation==-1){
+            //                 // if invalid heading number, set it to the first heading
+            //                 currentHeadingLocation=headingCount-1;
+            //             } else if(currentHeadingLocation==0) {
+            //                 // if at the first heading, loop to the last
+            //                 currentHeadingLocation = headingCount -1;
+            //             } else if(currentHeadingLocation==3 && !penguins) {
+            //                 // if at the heading just after the penguins, indicate next heading should go to the penguins
+            //                 penguins=true;
+            //             } else {
+            //                 // go to the next heading
+            //                 penguins=false;
+            //                 currentHeadingLocation=currentHeadingLocation-1;
+            //             } 
+
+            //             if(penguins){
+            //                 // if penguins should receive focus, set focus to penguins
+            //                 currentHeading = document.getElementById('penguins');
+            //             }else{
+            //                 // set focus to next heading
+            //                 currentHeading = document.getElementsByTagName('h1')[currentHeadingLocation];
+            //             }
+                        
+            //             // move the CV cursor to the next heading
+            //             cvox.Api.syncToNode(currentHeading, false);
+                        
+            //             if(penguins){
+            //                 // if penguins have focus, read the penguin text and alt attribute
+            //                 // I used commas instead of periods, because sometimes CV truncates at the period - don't know why
+            //                 speak('You are not ready for the previous heading yet First you must spend time frolicking with the penguins After that you may go to the previous heading. Image' + currentHeading.getAttribute('alt'));
+            //             } else{
+            //                 // read the custom indicator for heading text and the actual text of the heading 
+            //                 speak('You have jumped to the previous heading which is called' + currentHeading.innerText);
+            //             }
+            //             break;
+            //     }
+            // }
+            
+            // // add the listener for ChromeVox events
+            //     document.addEventListener("cvoxUserEvent",cvoxEventsHandler, true);
             
         </script>
 
