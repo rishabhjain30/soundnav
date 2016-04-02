@@ -8,26 +8,31 @@
         </style>
         <script>
 
-            function recognizeSpeech(){
-                window.SpeechRecognition = window.SpeechRecognition       ||
-                             window.webkitSpeechRecognition ||
-                             null;     
+(function() {
+    // Get some required handles
+    var recStatus = document.getElementById('recStatus');
+    var startRecBtn = document.getElementById('startRecBtn');
+    var stopRecBtn = document.getElementById('stopRecBtn');
 
-                var recognizer = new window.SpeechRecognition();
-                var transcription = document.getElementById('transcription');
-                var log = document.getElementById('log');
-                recognizer.continuous = true; // Recogniser doesn't stop listening even if the user pauses
-                    //function to start the recognizer  
-                    try {
-                        recognizer.start();
-                        transcription.value =  transcription.value;
-                    } 
-                    catch(ex) {
-                        return;
-                    }
-                recognizer.onresult = function(event) {
+    // Define a new speech recognition instance
+    var rec = null;
+    try {
+        rec = new webkitSpeechRecognition();
+    } 
+    catch(e) {
+        console.log('failed');
+    }
+    if (rec) {
+        rec.continuous = true;
+        rec.interimResults = false;
+        rec.lang = 'en';
+
+        // Define a threshold above which we are confident(!) that the recognition results are worth looking at 
+        var confidenceThreshold = 0.5;
+
+        // Process the results when they are returned from the recogniser
+        rec.onresult = function(event) {
                   transcription.value = '';// to stroe the recognized voice
-
                   for (var i = event.resultIndex; i < event.results.length; i++) {
                     if (event.results[i].isFinal) {
                       transcription.value = event.results[i][0].transcript ;
@@ -37,7 +42,7 @@
                     callback();
                   }
                 // Listen for errors
-                recognizer.onerror = function(event) {
+                rec.onerror = function(event) {
                   return;
                   // transcription.value = 'Sorry We couldnt hear you ' + event.message + transcription.value;
                   };          
@@ -45,13 +50,8 @@
                 return transcription.value;
               }
 
+            rec.start();
 
-            function doSomething(){
-                var command = recognizeSpeech();
-                console.log(command);
-            }
-
-            doSomething();
             // setInterval(doSomething, 5000);
              
             // var currentHeadingLocation = 0; // number of heading which has CV focus
