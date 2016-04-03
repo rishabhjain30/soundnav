@@ -136,7 +136,7 @@
 		</div>
 		
 		<div class="col-xs-12">
-			<h1></h1>
+			
 		</div>
 	
 	</div>
@@ -146,7 +146,7 @@
 <script type="text/javascript">
 
 
-
+var Command='fish';// though global variable will help,but its helpless here too
 function recognizeSpeech(callback){
 
   window.SpeechRecognition = window.SpeechRecognition       ||
@@ -183,36 +183,42 @@ function recognizeSpeech(callback){
         }
       	
       }
-
+	
       //check if the user has searched something ... if yes then redirect to search result page
       if(transcription.value!=null){
       	var main = document.getElementById("home-search");
       	var next =document.getElementById("result");
       	var searchText = document.getElementById("next-search");
-
+      	var resultHeading;
       	var jqxhr = $.get( "searchterm?query="+transcription.value, function() {
 			  console.log( "success" );
 			})
 			.done(function(){
 				var result = jqxhr.responseText
-				next.children[1].children[0].innerHTML=result;
+				next.children[1].innerHTML=result;
+				var el=document.getElementById('content');
+				resultHeading=el.children[3].innerHTML;
 			}) ;
 			  
-		console.log(jqxhr);
+	
       	setTimeout(function(){
       		main.style.display='none';
       		next.style.display='block';
       		searchText.value=transcription.value;
       		
       		
-      		textToSpeech(next.children[1].children[0].innerHTML);
+      		textToSpeech(resultHeading);
+      		setTimeout(function(){
+      			textToSpeech('speak next command');
+
+      		},3000);
 
 
-      	},1000);
+      	},3000);
       	
       }
     // Listen for errors
-    recognizer.onerror = function(event) {
+   	recognizer.onerror = function(event) {
       transcription.value = 'Sorry We couldnt hear you ' + event.message + transcription.value;
       };          
     }
@@ -248,98 +254,115 @@ function introSpeech(callback){
 		
 }
 window.addEventListener("load",function(){
-			introSpeech(recognizeSpeech)
+			introSpeech(recognizeSpeech);
 
 });
 // function to speak the text
-function textToSpeech(text,delay=0,stop=false){
-
+function textToSpeech(text){
+		
 	
-		var intro = new SpeechSynthesisUtterance();
-		intro.text = text ;
-		speechSynthesis.cancel();
-		var  t;
+	
+			var intro = new SpeechSynthesisUtterance();
+			intro.text = text ;
+			speechSynthesis.cancel();
+			var  t;
 
-		intro.onstart = function (event) {
-		    t = event.timeStamp;
-		    console.log(t);
-		};
+			intro.onstart = function (event) {
+			    t = event.timeStamp;
+			    console.log(t);
+			};
 
-		intro.onend = function (event) {
-		    t = event.timeStamp-t;
-		    console.log(event.timeStamp);
-		    console.log((t/1000) +' seconds');
-		};
+			intro.onend = function (event) {
+			    t = event.timeStamp-t;
+			    console.log(event.timeStamp);
+			    console.log((t/1000) +' seconds');
+			};
 
-		intro.lang = 'en-US';
-		intro.rate = 0.85;
+			intro.lang = 'en-US';
+			intro.rate = 0.85;
 
-		setTimeout(function(){
-			speechSynthesis.speak(intro);
-		});
+			setTimeout(function(){
+				speechSynthesis.speak(intro);
+			},1000);
 
-		if(stop===true){
+			if(text==="speak next command"){
+			
+			
+				speechToText();
+
+			
+		}
+
 		
-				return;
+		
+
+}
+function speechToText(){
+		var command='';
+		window.SpeechRecognition = window.SpeechRecognition     ||
+	                             window.webkitSpeechRecognition ||
+	                             null;     
+	  if (window.SpeechRecognition === null) {   
+	    console.log("not supported");
+	  } 
+	  else {
+		    var recognizer = new window.SpeechRecognition();
+		   
+		    recognizer.continuous = false; // Recogniser doesn't stop listening even if the user pauses
+		 		//function to start the recognizer	
+			try {
+			    recognizer.start();
+			    Command = command;
+			    
+			    console.log('holy',command,Command);
+			} 
+			catch(ex) {
+			   console.log( 'Recognition error: ' ,ex.message,transcription.value);
 			}
-		textToSpeech('speak the next command',2000,true);
-		
+			recognizer.onresult = function(event) {
+	      
+
+		      for (var i = event.resultIndex; i < event.results.length; i++) {
+			        if (event.results[i].isFinal) {
+			          command = event.results[i][0].transcript ;
+			        } else {
+			          command += event.results[i][0].transcript;
+			        }
+			        Command=command;
+		        	console.log(command);
+		        	setTimeout(function(){
+
+		        		textToSpeech(command);// to speak the entered command
+		        							  // aise hi kahin bhi timeout karke daal diye hain maine
+		        							  //toh yahan pe processCommand use kar sakta hai
+		        		if(command==="stop"){
+		        			return;
+		        		}	
+		        		setTimeout(function(){
+		        			textToSpeech('speak next command');
+		        		},1500);
+		        	},1500);
+		        	
+		        
+	      		
+	       		 }
+	       
+	    	}  
+		}
+
+
 
 }
-//
-/*function speechToText(div){
-	var recognizing;
-    var recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    reset();
-    recognition.onend = reset;
-    var answer='';
-    recognition.onresult = function (event) {
-      for (var i = resultIndex; i < event.results.length; ++i) {
-        if (event.results.final) {
-          answer += event.results[i][0].transcript;
-        }
-      }
-    }
-    console.log(answer);
 
-    function reset() {
-      recognizing = false;
-      //button.innerHTML = "Click to Speak";
-    }
 
-    function toggleStartStop() {
-      if (recognizing) {
-        recognition.stop();
-        reset();
-      } else {
-        recognition.start();
-        recognizing = true;
-       // button.innerHTML = "Click to Stop";
-      }
-    }
-}*/
-/*function prepareFrame() {
-	frmDiv = document.createElement("div");
-	frmDiv.innerHTML(' <iframe src="process.html" width="497" height="298" seamless=""></iframe>')
-	document.body.appendChild(ifrm);
-}*/
 
-/*function processInput() {
-	console.log('iframe');
-	//prepareFrame();	
-}
-*/
-
-// introSpeech(recognizeSpeech);
 
 
     </script>
 
 <!--Additional scripts -->
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.8/angular-animate.js"></script>
-
+	
 </body>
 </html>
