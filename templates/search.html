@@ -30,11 +30,11 @@
 		  z-index: -9999;
 		  
 		  background-repeat: no-repeat;
-		  -webkit-filter: blur(2px);
-		  -moz-filter: blur(2px);
-		  -o-filter: blur(2px);
-		  -ms-filter: blur(2px);
-		  filter: blur(2px);
+		  -webkit-filter: blur(4px);
+		  -moz-filter: blur(4px);
+		  -o-filter: blur(4px);
+		  -ms-filter: blur(4px);
+		  filter: blur(4px);
 		}
 		.container-fluid{
 			padding: auto;
@@ -54,7 +54,7 @@
 			font-size: 36px;
 			text-align: center;
 			font-weight: bolder;
-			
+			-webkit-transition-timing-function: ease-out;
 		}
 		.search-box{
 			height: 40%;
@@ -342,6 +342,7 @@ function textToSpeech(text){
 							next.children[1].innerHTML=result;
 							var el=document.getElementById('content');
 							resultHeading=el.children[3].innerHTML;
+							searchText.value=nextHeading[23].textContent;
 						}) ;
 			  
 			
