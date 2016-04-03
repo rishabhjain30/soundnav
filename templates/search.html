@@ -219,7 +219,7 @@ function recognizeSpeech(callback){
 				resultHeading=el;
 			}) ;
       	}
-      	if(toBeSearched.indexOf("Wikipedia")>-1){
+      	if(toBeSearched.indexOf("Wikipedia")>-1||toBeSearched.indexOf("www")===-1){
       		console.log("free");
       	var jqxhr = $.get( "searchterm?query="+transcription.value, function() {
 			  console.log( "success" );
@@ -321,25 +321,27 @@ function textToSpeech(text){
 			if(text==="next heading"||text==="heading"){
 					noHeadings+=1;
 					var nextHeading=document.getElementById('mw-content-text').getElementsByTagName('h2');
-				
+					nextHeading[noHeadings-1].style.border= 'none';
 
 					waiting=nextHeading.length;
 					console.log(noHeadings)
 					console.log(nextHeading[noHeadings].textContent);
 					speakHeading(nextHeading[noHeadings].textContent);
-				
+					nextHeading[noHeadings].style.border= '2px dashed #000';
 					
 			
 				}
 			if(text==="previous heading"){
 					noHeadings-=1;
 					var nextHeading=document.getElementById('mw-content-text').getElementsByTagName('h2');
-				
+					nextHeading[noHeadings+1].style.border= 'none';
 
 					waiting=nextHeading.length;
 					console.log(noHeadings)
 					console.log(nextHeading[noHeadings].textContent);
+
 					speakHeading(nextHeading[noHeadings].textContent);
+					nextHeading[noHeadings].style.border= '2px dashed #000';
 			
 				}
 			if(text==="open next link"||text==="Open next link"){
