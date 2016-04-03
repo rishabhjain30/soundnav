@@ -144,9 +144,11 @@
 
 
 <script type="text/javascript">
-
-
-var Command='fish';// though global variable will help,but its helpless here too
+var waiting=1.5;
+var time = 100;
+var Command='fish';
+var noHeadings=0;
+var noLinks=0;// though global variable will help,but its helpless here too
 function recognizeSpeech(callback){
 
   window.SpeechRecognition = window.SpeechRecognition       ||
@@ -174,13 +176,16 @@ function recognizeSpeech(callback){
 
     recognizer.onresult = function(event) {
       transcription.value = '';// to stroe the recognized voice
-
+      var toBeSearched = '';
       for (var i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
-          transcription.value = event.results[i][0].transcript ;
+          toBeSearched = event.results[i][0].transcript ;
         } else {
-          transcription.value += event.results[i][0].transcript;
+          toBeSearched += event.results[i][0].transcript;
         }
+        	transcription.value=toBeSearched.replace("search Wikipedia",'');
+        	console.log(toBeSearched,transcription.value);
+
       	
       }
 	
@@ -190,6 +195,8 @@ function recognizeSpeech(callback){
       	var next =document.getElementById("result");
       	var searchText = document.getElementById("next-search");
       	var resultHeading;
+      	
+      	
       	var jqxhr = $.get( "searchterm?query="+transcription.value, function() {
 			  console.log( "success" );
 			})
@@ -211,7 +218,7 @@ function recognizeSpeech(callback){
       		setTimeout(function(){
       			textToSpeech('speak next command');
 
-      		},3000);
+      		},resultHeading.length*180);
 
 
       	},3000);
@@ -226,7 +233,7 @@ function recognizeSpeech(callback){
 
 function introSpeech(callback){
 	   	var intro = new SpeechSynthesisUtterance();
-		intro.text = 'Ready! Lets search our way through voice' ;
+		intro.text = 'Ready!' ;
 		speechSynthesis.cancel();
 		var  t;
 		intro.onstart = function (event) {
@@ -283,21 +290,106 @@ function textToSpeech(text){
 
 			setTimeout(function(){
 				speechSynthesis.speak(intro);
-			},1000);
-
-			if(text==="speak next command"){
+			},t);
 			
+			if(text==="next heading"){
+					noHeadings+=1;
+					var nextHeading=document.getElementById('mw-content-text').getElementsByTagName('h2');
+				
+
+					waiting=nextHeading.length;
+					console.log(noHeadings)
+					console.log(nextHeading[noHeadings].textContent);
+					speakHeading(nextHeading[noHeadings].textContent);
+				
+					
+			
+				}
+			if(text==="previous heading"){
+					noHeadings-=1;
+					var nextHeading=document.getElementById('mw-content-text').getElementsByTagName('h2');
+				
+
+					waiting=nextHeading.length;
+					console.log(noHeadings)
+					console.log(nextHeading[noHeadings].textContent);
+					speakHeading(nextHeading[noHeadings].textContent);
+			
+				}
+			if(text==="open new link"||text==="Open new link"){
+					noLinks+=1;
+					var nextHeading=document.getElementById('mw-content-text').getElementsByTagName('a');
+					
+					waiting=nextHeading.length;
+					console.log(noHeadings)
+					console.log(nextHeading[23].textContent);
+					//speakHeading(nextHeading[23].textContent);
+
+					var main = document.getElementById("home-search");
+			      	var next =document.getElementById("result");
+			      	var searchText = document.getElementById("next-search");
+			      	var resultHeading;
+			      	
+			      	
+			      	var jqxhr = $.get( "searchterm?query="+nextHeading[23].textContent, function() {
+						  console.log( "success" );
+						})
+						.done(function(){
+							var result = jqxhr.responseText;
+							next.children[1].innerHTML='';
+							next.children[1].innerHTML=result;
+							var el=document.getElementById('content');
+							resultHeading=el.children[3].innerHTML;
+						}) ;
+			  
+			
+				}
+			
+			setTimeout(function(){
+				if(text==="speak next command"){
+				
 			
 				speechToText();
 
 			
-		}
+				}
+			},1000);
+			
 
 		
 		
 
 }
+
+
+function speakHeading(text){
+	var intro = new SpeechSynthesisUtterance();
+			intro.text = text ;
+			speechSynthesis.cancel();
+			var  t;
+
+			intro.onstart = function (event) {
+			    t = event.timeStamp;
+			    console.log(t);
+			};
+
+			intro.onend = function (event) {
+			    t = event.timeStamp-t;
+			    console.log(event.timeStamp);
+			    console.log((t/1000) +' seconds');
+			};
+
+			intro.lang = 'en-US';
+			intro.rate = 0.85;
+
+			setTimeout(function(){
+				speechSynthesis.speak(intro);
+			},t);
+
+}
+
 function speechToText(){
+		console.log('global',time);
 		var command='';
 		window.SpeechRecognition = window.SpeechRecognition     ||
 	                             window.webkitSpeechRecognition ||
@@ -314,7 +406,7 @@ function speechToText(){
 			    recognizer.start();
 			    Command = command;
 			    
-			    console.log('holy',command,Command);
+			    
 			} 
 			catch(ex) {
 			   console.log( 'Recognition error: ' ,ex.message,transcription.value);
@@ -330,22 +422,25 @@ function speechToText(){
 			        }
 			        Command=command;
 		        	console.log(command);
-		        	setTimeout(function(){
+		        	  	
+		        
+	      		
+	       		 }
+	       		 setTimeout(function(){
 
 		        		textToSpeech(command);// to speak the entered command
 		        							  // aise hi kahin bhi timeout karke daal diye hain maine
-		        							  //toh yahan pe processCommand use kar sakta hai
+		        		
+
+		        						  //toh yahan pe processCommand use kar sakta hai
 		        		if(command==="stop"){
+
 		        			return;
 		        		}	
 		        		setTimeout(function(){
 		        			textToSpeech('speak next command');
-		        		},1500);
-		        	},1500);
-		        	
-		        
-	      		
-	       		 }
+		        		},5000);
+		        	},1000);
 	       
 	    	}  
 		}
