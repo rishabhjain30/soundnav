@@ -23,7 +23,7 @@
 		  z-index: 1;
 
 		  display: block;
-		  background-image: url('http://www.freecreatives.com/wp-content/uploads/2015/05/HD-Vintage-Photography-Wallpaper.jpg');
+		  background-image: url('https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSdOSQ5hzWTB5q3jlkMnMJQZfp9sHG-VSS1310D8eBPRq0sjFq6qg');
 		  background-size: 100% 100%;
 		  width: 100%;
 		  height: 100%;
@@ -51,14 +51,15 @@
 		#introspeech{
 			color: #000;
 			font-family: "Halvetica";
-			font-size: 35px;
+			font-size: 36px;
 			text-align: center;
+			font-weight: bolder;
 			
 		}
 		.search-box{
 			height: 40%;
 			width: 60%;
-			box-shadow: 0px 3px 3px  #000;
+			box-shadow: 0px 4px 5px  #000;
 			float: left;
 			margin: 15% 15% ;
 			position: fixed;
@@ -80,6 +81,7 @@
 			font-size: 60px;
 			text-align: center;
 			color: #00c87c;
+			font-weight: bolder;
 		}
 		.search-box input{
 			height: 40px;
@@ -233,7 +235,7 @@ function recognizeSpeech(callback){
 
 function introSpeech(callback){
 	   	var intro = new SpeechSynthesisUtterance();
-		intro.text = 'Ready!' ;
+		intro.text = 'Ready! Search you way through voice' ;
 		speechSynthesis.cancel();
 		var  t;
 		intro.onstart = function (event) {
@@ -246,7 +248,7 @@ function introSpeech(callback){
 		    console.log((t/1000) +' seconds');
 		};
 		intro.lang = 'en-US';
-		intro.rate = 0.85;
+		intro.rate = 0.76;
 		speechSynthesis.speak(intro);
 			var c = 0;
 			var interval = setInterval(function() { 
@@ -286,7 +288,7 @@ function textToSpeech(text){
 			};
 
 			intro.lang = 'en-US';
-			intro.rate = 0.85;
+			intro.rate = 0.76;
 
 			setTimeout(function(){
 				speechSynthesis.speak(intro);
@@ -316,7 +318,7 @@ function textToSpeech(text){
 					speakHeading(nextHeading[noHeadings].textContent);
 			
 				}
-			if(text==="open new link"||text==="Open new link"){
+			if(text==="open next link"||text==="Open next link"){
 					noLinks+=1;
 					var nextHeading=document.getElementById('mw-content-text').getElementsByTagName('a');
 					
@@ -439,7 +441,7 @@ function speechToText(){
 		        		}	
 		        		setTimeout(function(){
 		        			textToSpeech('speak next command');
-		        		},5000);
+		        		},4000);
 		        	},1000);
 	       
 	    	}  
