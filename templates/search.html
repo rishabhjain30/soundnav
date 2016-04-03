@@ -147,6 +147,9 @@
 		<div class="col-xs-12">
 			
 		</div>
+		<div class="col-xs-12">
+			
+		</div>
 	
 	</div>
 </div>
@@ -159,7 +162,7 @@ var Command='fish';
 var noHeadings=0;
 var noLinks=0;// though global variable will help,but its helpless here too
 function recognizeSpeech(callback){
-
+	var toBeSearched = '';
   window.SpeechRecognition = window.SpeechRecognition       ||
                              window.webkitSpeechRecognition ||
                              null;     
@@ -185,7 +188,7 @@ function recognizeSpeech(callback){
 
     recognizer.onresult = function(event) {
       transcription.value = '';// to stroe the recognized voice
-      var toBeSearched = '';
+      
       for (var i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
           toBeSearched = event.results[i][0].transcript ;
@@ -205,21 +208,35 @@ function recognizeSpeech(callback){
       	var searchText = document.getElementById("next-search");
       	var resultHeading;
       	
-      	
+      	if(transcription.value.indexOf("www")>-1){
+      		var jqxhr = $.get( "url?query="+transcription.value, function() {
+			  console.log( "success" );
+			})
+			.done(function(){
+				var result = jqxhr.responseText;
+				next.children[2].innerHTML=result;
+				var el=next.children[2].textContent;
+				resultHeading=el;
+			}) ;
+      	}
+      	if(toBeSearched.indexOf("Wikipedia")>-1){
+      		console.log("free");
       	var jqxhr = $.get( "searchterm?query="+transcription.value, function() {
 			  console.log( "success" );
 			})
 			.done(function(){
-				var result = jqxhr.responseText
+				var result = jqxhr.responseText;
 				next.children[1].innerHTML=result;
 				var el=document.getElementById('content');
 				resultHeading=el.children[3].innerHTML;
 			}) ;
-			  
+
+		}	  
 	
       	setTimeout(function(){
       		main.style.display='none';
       		next.style.display='block';
+      		
       		searchText.value=transcription.value;
       		
       		
@@ -227,7 +244,7 @@ function recognizeSpeech(callback){
       		setTimeout(function(){
       			textToSpeech('speak next command');
 
-      		},resultHeading.length*180);
+      		},1800);
 
 
       	},3000);
@@ -301,7 +318,7 @@ function textToSpeech(text){
 				speechSynthesis.speak(intro);
 			},t);
 			
-			if(text==="next heading"){
+			if(text==="next heading"||text==="heading"){
 					noHeadings+=1;
 					var nextHeading=document.getElementById('mw-content-text').getElementsByTagName('h2');
 				
